@@ -32,8 +32,7 @@ print(x.type() & y.type() & z.type())
 ```
 
 This finds the minimum necessary data structure to replace
-for the code to run when replacing all variables with it. 
-The result is provided in *yaml* format:
+all variables in the code with.  The result is provided in *yaml* format:
 
 ```
 object:
