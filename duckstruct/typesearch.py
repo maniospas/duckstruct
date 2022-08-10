@@ -119,7 +119,7 @@ class TypeListener(object):
 
         def describe(tab):
             desc = self._typesearch_attributes.describe(tab)
-            if desc != TAB*tab+"object:\n":
+            if desc != TAB*tab+"object:\n" and desc:
                 return desc
             return TAB * tab + "class: "+self._typesearch_wrapped_obj.__class__.__name__
         self._typesearch_describe = describe
@@ -146,7 +146,8 @@ class TypeListener(object):
                     '_typesearch_describe', '_typesearch_returns', '_typesearch_parent'):
             return getattr(self, attr)
         obj = getattr(self._typesearch_wrapped_obj, attr)
-        if isinstance(obj, object):
+
+        if not isinstance(obj, TypeListener):
             if get_hash(obj) in self._typesearch_wraps:
                 obj = self._typesearch_wraps[get_hash(obj)]
             else:
@@ -164,13 +165,15 @@ class TypeListener(object):
                 self._typesearch_attributes[attr] = Type(obj)
         return obj
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, _recursive_type=False, **kwargs):
         global _method_depth
         if id(self._typesearch_parent) not in _method_depth:
             _method_depth[id(self._typesearch_parent)] = 1
         else:
             _method_depth[id(self._typesearch_parent)] += 1
         ret = self._typesearch_wrapped_obj(*args, **kwargs)
+        if _recursive_type:
+            ret = TypeListener(ret)
         _method_depth[id(self._typesearch_parent)] -= 1
         if _method_depth[id(self._typesearch_parent)] == 0:
             if self._typesearch_attributes.returns is None:
@@ -186,7 +189,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __sub__(self, *args, **kwargs):
@@ -196,7 +199,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __mul__(self, *args, **kwargs):
@@ -206,7 +209,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __mod__(self, *args, **kwargs):
@@ -216,7 +219,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __float__(self, *args, **kwargs):
@@ -266,7 +269,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __neg__(self, *args, **kwargs):
@@ -276,7 +279,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __ge__(self, *args, **kwargs):
@@ -286,7 +289,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __le__(self, *args, **kwargs):
@@ -296,7 +299,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __gt__(self, *args, **kwargs):
@@ -306,7 +309,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __lt__(self, *args, **kwargs):
@@ -316,7 +319,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __eq__(self, *args, **kwargs):
@@ -326,7 +329,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __and__(self, *args, **kwargs):
@@ -336,7 +339,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __or__(self, *args, **kwargs):
@@ -346,7 +349,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __xor__(self, *args, **kwargs):
@@ -356,7 +359,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __invert__(self, *args, **kwargs):
@@ -366,7 +369,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __abs__(self, *args, **kwargs):
@@ -376,7 +379,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __enter__(self, *args, **kwargs):
@@ -386,7 +389,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __exit__(self, *args, **kwargs):
@@ -396,7 +399,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __contains__(self, *args, **kwargs):
@@ -416,7 +419,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __getitem__(self, *args, **kwargs):
@@ -426,7 +429,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __setitem__(self, *args, **kwargs):
@@ -436,7 +439,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __rshift__(self, *args, **kwargs):
@@ -446,7 +449,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __lshift__(self, *args, **kwargs):
@@ -456,7 +459,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __long__(self, *args, **kwargs):
@@ -476,7 +479,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __hex__(self, *args, **kwargs):
@@ -506,7 +509,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __aenter__(self, *args, **kwargs):
@@ -516,7 +519,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __aexit__(self, *args, **kwargs):
@@ -526,7 +529,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __anext__(self, *args, **kwargs):
@@ -536,7 +539,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __next__(self, *args, **kwargs):
@@ -546,7 +549,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __idiv__(self, *args, **kwargs):
@@ -556,7 +559,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __floor__(self, *args, **kwargs):
@@ -576,7 +579,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __floordiv__(self, *args, **kwargs):
@@ -586,7 +589,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __complex__(self, *args, **kwargs):
@@ -606,7 +609,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __isub__(self, *args, **kwargs):
@@ -616,7 +619,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __imul__(self, *args, **kwargs):
@@ -626,7 +629,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __imod__(self, *args, **kwargs):
@@ -636,7 +639,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __truediv__(self, *args, **kwargs):
@@ -646,7 +649,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __rdiv__(self, *args, **kwargs):
@@ -656,7 +659,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __radd__(self, *args, **kwargs):
@@ -666,7 +669,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __rsub__(self, *args, **kwargs):
@@ -676,7 +679,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __rmul__(self, *args, **kwargs):
@@ -686,7 +689,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __pow__(self, *args, **kwargs):
@@ -696,7 +699,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __rpow__(self, *args, **kwargs):
@@ -706,7 +709,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
     def __ipow__(self, *args, **kwargs):
@@ -716,7 +719,7 @@ class TypeListener(object):
             self._typesearch_wraps[method] = TypeListener(method, self)
             self._typesearch_attributes[attr] = Type(self._typesearch_wraps[method])
         method = self._typesearch_wraps[method]
-        ret = method(*args, **kwargs)
+        ret = method(*args, _recursive_type=True, **kwargs)
         return ret
 
 

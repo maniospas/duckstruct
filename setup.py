@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="duckstruct",
-    version="0.0.1",
+    version="0.0.2",
     author="Emmanouil Krasanakis",
     author_email="maniospas@hotmail.com",
     description=("Extracting data structures from runtime duck typing."),

@@ -141,8 +141,10 @@ class AbstractValue:
                 if self <= t:
                     return True
             return False
-        if not isinstance(other, AbstractValue):
+        if not isinstance(other, AbstractValue) and not isinstance(other, AbstractObject):
             return False
+        if self.class_name is None:
+            return True
         return self.class_name == other.class_name
 
     def num_nodes(self):
@@ -174,6 +176,8 @@ class AbstractObject:
         if tab == 0:
             ret += "object:"
             tab += 1
+        if self.class_name is not None:
+            ret += "\n" + TAB * tab + "class: " + self.class_name
         for member in self.members:
             ret += "\n"+TAB*tab+member+": "+self.members[member]._describe(tab+1)
         if len(self.returns.options) > 0:
@@ -186,6 +190,10 @@ class AbstractObject:
     def __eq__(self, other):
         if isinstance(other, AbstractUnion):
             return len(other.options) == 1 and self == other.options[0]
+        if isinstance(other, AbstractValue):
+            if self.class_name is None or other.class_name is None:
+                return False
+            return self.class_name == other.class_name
         if not isinstance(other, AbstractObject):
             return False
         if self.returns != other.returns:
@@ -215,6 +223,10 @@ class AbstractObject:
                 if self <= t:
                     return True
             return False
+        if isinstance(other, AbstractValue):
+            if self.class_name is None or other.class_name is None:
+                return False
+            return self.class_name == other.class_name
         if not isinstance(other, AbstractObject):
             return False
         if not (self.returns <= other.returns):
@@ -269,3 +281,7 @@ class AbstractObject:
         #if not callable(obj) and len(self.returns.options) > 0:
         #    return False
         return True
+
+    def to(self, namespace):
+        from duckstruct.reduction import convert
+        return convert(self, namespace)
