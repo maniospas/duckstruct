@@ -51,6 +51,6 @@ object:
 
 
 # :fire: Usage
-* Find minimum necessary duck typing
-* Maintain data structures (e.g. remove unused methods)
-* Write custom data structures for programs
+* Find minimum necessary duck typing.
+* Maintain data structures (e.g. remove unused methods).
+* Write custom data structures for programs.
