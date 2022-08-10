@@ -1,10 +1,15 @@
-git init# duckstruct
+# duckstruct
 
 **Dependencies:** None<br/>
 **Developer:** Emmanouil (Manios) Krasanakis<br/>
 **Contant:** maniospas@hotmail.com
 
 # :zap: Quickstart
+Install the package with the command line instruction 
+*pip install duckstruct*. Then, use its `TypeListener`
+lass to wrap objects.
+
+
 ```python
 from duckstruct import TypeListener
 import numpy as np
@@ -18,14 +23,17 @@ z = TypeListener(z)
 print(x)
 print(x+1+y.sum()+z.sum())
 ```
-After running the code, you can show the structure a new variable 
-should have to replace all others in *yaml* format.
+
+After running code, you can view the structure a new variable 
+should have to replace (combinations of) others as code inputs.
 
 ```python
 print(x.type() & y.type() & z.type())
 ```
 
-This yields the minimum necessary structure for the code to run:
+This finds the minimum necessary data structure to replace
+for the code to run when replacing all variables with it. 
+The result is provided in *yaml* format:
 
 ```
 object:
@@ -40,3 +48,9 @@ object:
       -  class: int32
       -  class: float64
 ```
+
+
+# :fire: Usage
+* Find minimum necessary duck typing
+* Maintain data structures (e.g. remove unused methods)
+* Write custom data structures for programs
